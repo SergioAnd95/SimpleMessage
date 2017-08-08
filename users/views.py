@@ -6,5 +6,5 @@ from django.contrib.auth.forms import UserCreationForm
 
 class SignUpView(CreateView):
     form_class = UserCreationForm
-    success_url = '/login'
+    success_url = '/accounts/login'
     template_name = 'registration/signup.html'
