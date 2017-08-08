@@ -75,7 +75,7 @@
 
         var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
         var ws_path = ws_scheme + '://' + window.location.host + '/';
-        console.log("Connecting to " + ws_path);
+
 
         var socket = new WebSocket(ws_path);
 
@@ -84,15 +84,24 @@
             var template = '';
             var data = JSON.parse(e.data);
 
-            if(data['owner'] == "{{ request.user.username }}"){
-                console.log(data['owner']);
-                data['owner'] = "{% trans 'Я' %}";
-                template = $('#my_message').html();
-            } else {
-                template = $('#another_message').html();
-            }
 
-            $('#chat').append(Mustache.render(template, data));
+            if(!('errors' in data)){
+                if(data['owner'] == "{{ request.user.username }}"){
+
+                    data['owner'] = "{% trans 'Я' %}";
+                    template = $('#my_message').html();
+                } else {
+                    template = $('#another_message').html();
+                }
+
+                $('#chat').append(Mustache.render(template, data));
+            } else {
+
+                for(var i in JSON.parse(data.errors)){
+
+                    $("#id_"+i).parent().addClass("has-error");
+                }
+            }
         };
 
         socket.onopen = function() {
@@ -100,11 +109,15 @@
 
         $("#msg-form button").on('click', function (e) {
             e.preventDefault();
-            console.log(socket.readyState, WebSocket.OPEN);
-            if (socket.readyState == WebSocket.OPEN) socket.onopen();
-            console.log(socket.readyState, WebSocket.OPEN);
+            $form = $('#msg-form');
 
-            var params = FromArrayToObject($("#msg-form").serializeArray());
+            // Remove errors from form
+            $form.children('.has-error').removeClass('has-error');
+
+            if (socket.readyState == WebSocket.OPEN) socket.onopen();
+
+
+            var params = FromArrayToObject($form.serializeArray());
             socket.send(JSON.stringify(params));
         });
     });
