@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
-{% load widget_tweaks %}
 
-{% block title %}{{ block.super }} - LogIn{% endblock %}
+{% load widget_tweaks %}
+{% load i18n %}
+
+{% block title %}{{ block.super }} - {% trans 'Вход' %}{% endblock %}
 
 {% block content %}
     <div class="col-sm-8 col-sm-offset-2 col-sx-12" style="border:1px solid #ddd; border-radius:5px; padding: 40px 25px 20px 25px">
@@ -17,7 +19,7 @@
             </div>
             {% endfor %}
             <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-10"><button type="submit" class="btn btn-default">Sign in</button>
+                <div class="col-sm-offset-2 col-sm-10"><button type="submit" class="btn btn-default">{% trans 'Вход' %}</button>
                 </div>
             </div>
         </form>

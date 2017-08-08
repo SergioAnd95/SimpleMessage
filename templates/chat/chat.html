@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% load staticfiles %}
-
+{% load i18n %}
 
 {% block title %}{{ block.super }} - Chat{% endblock %}
 
@@ -15,7 +15,7 @@
         <div class="col-xs-12 col-md-offset-2 col-md-8 col-lg-8 col-lg-offset-2">
             <div class="panel panel-primary">
                 <div class="panel-heading">
-                    <span class="glyphicon glyphicon-comment"></span> Чат
+                    <span class="glyphicon glyphicon-comment"></span> {% trans 'Чат' %}
                 </div>
                 <div class="panel-body body-panel">
                     <ul class="chat" id="chat">
@@ -37,7 +37,7 @@
                                         {% else %}
                                             <div class="header">
                                                 <small class=" text-muted"><span class="glyphicon glyphicon-time"></span>{{ message.when_created|date:'d-m-Y H:i' }}</small>
-                                                <strong class="pull-right primary-font">Я</strong>
+                                                <strong class="pull-right primary-font">{% trans 'Я' %}</strong>
                                             </div>
                                             <p>
                                                 {{ message.text }}
@@ -86,7 +86,7 @@
 
             if(data['owner'] == "{{ request.user.username }}"){
                 console.log(data['owner']);
-                data['owner'] = "Я";
+                data['owner'] = "{% trans 'Я' %}";
                 template = $('#my_message').html();
             } else {
                 template = $('#another_message').html();
