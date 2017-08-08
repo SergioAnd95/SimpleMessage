@@ -1,0 +1,12 @@
+{% load widget_tweaks %}
+
+
+<form class="panel-footer clearfix" id="msg-form">
+    {% for field in form %}
+        {% render_field field class+='form-control' rows='3' %}
+    {% endfor %}
+
+    <span class="col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 col-xs-12" style="margin-top: 10px">
+        <button class="btn btn-warning btn-lg btn-block" id="btn-chat">Отправить</button>
+    </span>
+</form>

@@ -40,8 +40,10 @@ INSTALLED_APPS = [
 
     # third-party apps
     'widget_tweaks',
+    'channels',
 
     # own apps
+    'chat'
 ]
 
 MIDDLEWARE = [
@@ -129,12 +131,28 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
 
+
 # Media files
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+# Channel layer definitions
+# http://channels.readthedocs.org/en/latest/deploying.html#setting-up-a-channel-backend
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'asgi_redis.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('localhost', 6379)],
+        },
+        'ROUTING': 'SimpleMessage.routing.channel_routing',
+    },
+}
+
 
 try:
     from .local_settings import *

@@ -21,5 +21,6 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^accounts/', include('users.urls', namespace='accounts'))
+    url(r'^accounts/', include('users.urls', namespace='accounts')),
+    url(r'^', include('chat.urls', namespace='chat')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

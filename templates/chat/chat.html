@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% load staticfiles %}
+
+
+{% block title %}{{ block.super }} - Chat{% endblock %}
+
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+    <div class="row form-group">
+        <div class="col-xs-12 col-md-offset-2 col-md-8 col-lg-8 col-lg-offset-2">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <span class="glyphicon glyphicon-comment"></span> Чат
+                </div>
+                <div class="panel-body body-panel">
+                    <ul class="chat" id="chat">
+                        {% for message in messages %}
+
+                                <li class="{% if message.owner != request.user  %}left{% else %}right{% endif %} clearfix">
+                                    <span class="chat-img {% if message.owner != request.user  %}pull-left{% else %}pull-right{% endif %}">
+                                        <img src="http://placehold.it/50/55C1E7/fff&text=U" alt="User Avatar" class="img-circle" />
+                                    </span>
+                                    <div class="chat-body clearfix">
+                                        {% if message.owner != request.user  %}
+                                        <div class="header">
+                                            <strong class="primary-font">{{ message.owner.username }}</strong> <small class="pull-right text-muted">
+                                            <span class="glyphicon glyphicon-time"></span>{{ message.when_created|date:'d-m-Y H:i' }}</small>
+                                        </div>
+                                        <p>
+                                            {{ message.text }}
+                                        </p>
+                                        {% else %}
+                                            <div class="header">
+                                                <small class=" text-muted"><span class="glyphicon glyphicon-time"></span>{{ message.when_created|date:'d-m-Y H:i' }}</small>
+                                                <strong class="pull-right primary-font">Я</strong>
+                                            </div>
+                                            <p>
+                                                {{ message.text }}
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% include 'chat/_msg_form.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+
+
+{% block extra_scripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.3.0/mustache.min.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function () {
+
+        function FromArrayToObject(arr) {
+            var obj = {};
+            for(var i=0;i<arr.length; i++){
+                obj[arr[i].name] = arr[i].value;
+            }
+
+            return obj
+        }
+
+        var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+        var ws_path = ws_scheme + '://' + window.location.host + '/';
+        console.log("Connecting to " + ws_path);
+
+        var socket = new WebSocket(ws_path);
+
+        socket.onmessage = function(e) {
+
+            var template = '';
+            var data = JSON.parse(e.data);
+
+            if(data['owner'] == "{{ request.user.username }}"){
+                console.log(data['owner']);
+                data['owner'] = "Я";
+                template = $('#my_message').html();
+            } else {
+                template = $('#another_message').html();
+            }
+
+            $('#chat').append(Mustache.render(template, data));
+        };
+
+        socket.onopen = function() {
+        };
+
+        $("#msg-form button").on('click', function (e) {
+            e.preventDefault();
+            console.log(socket.readyState, WebSocket.OPEN);
+            if (socket.readyState == WebSocket.OPEN) socket.onopen();
+            console.log(socket.readyState, WebSocket.OPEN);
+
+            var params = FromArrayToObject($("#msg-form").serializeArray());
+            socket.send(JSON.stringify(params));
+        });
+    });
+    </script>
+
+    <script id="another_message" type="text/html">
+        {% templatetag openvariable %}=[[ ]]={% templatetag closevariable %}
+        <li class="left clearfix">
+            <span class="chat-img pull-left">
+                <img src="http://placehold.it/50/55C1E7/fff&text=U" alt="User Avatar" class="img-circle" />
+            </span>
+            <div class="chat-body clearfix">
+                    <div class="header">
+                        <strong class="primary-font">[[ owner ]]</strong> <small class="pull-right text-muted">
+                        <span class="glyphicon glyphicon-time"></span>[[ when_created ]]</small>
+                    </div>
+                    <p>
+                        [[ text ]]
+                    </p>
+            </div>
+        </li>
+    </script>
+
+    <script id="my_message" type="text/html">
+        {% templatetag openvariable %}=[[ ]]={% templatetag closevariable %}
+        <li class="right clearfix">
+            <span class="chat-img pull-right">
+                <img src="http://placehold.it/50/55C1E7/fff&text=U" alt="User Avatar" class="img-circle" />
+            </span>
+            <div class="chat-body clearfix">
+                    <div class="header">
+                        <small class=" text-muted"><span class="glyphicon glyphicon-time"></span>[[ when_created ]]</small>
+                        <strong class="pull-right primary-font">[[ owner ]]</strong>
+                    </div>
+                    <p>
+                        [[ text ]]
+                    </p>
+            </div>
+        </li>
+    </script>
+
+{% endblock %}
